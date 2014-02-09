@@ -14,47 +14,45 @@ class BothandlerPlugin(b3.plugin.Plugin):
     _botminplayers = 6 # Add bots until this number of players in game
     _clients = 0 # Clients number
     _bots = 0 # bots number
+    _i = 0 # used in funtioning
     _adding = False
     _first = True
     
     
-    #Get details from config file
+    #Function to get details from config file
     def onLoadConfig(self):
-
-
-                self.NameBot1 = self.config.get('settings', 'name_bot1')
-                self.NameBot2 = self.config.get('settings', 'name_bot2')
-                self.NameBot3 = self.config.get('settings', 'name_bot3')
-                self.NameBot4 = self.config.get('settings', 'name_bot4')
-                self.NameBot5 = self.config.get('settings', 'name_bot5')
-                self.NameBot6 = self.config.get('settings', 'name_bot6')
-                self.NameBot7 = self.config.get('settings', 'name_bot7')
-                self.NameBot8 = self.config.get('settings', 'name_bot8')
+                self.loadBotstuff()
                 
-                self.ConfigBot1 = self.config.get('settings', 'caracteristic_bot1')
-                self.ConfigBot2 = self.config.get('settings', 'caracteristic_bot2')
-                self.ConfigBot3 = self.config.get('settings', 'caracteristic_bot3')
-                self.ConfigBot4 = self.config.get('settings', 'caracteristic_bot4')
-                self.ConfigBot5 = self.config.get('settings', 'caracteristic_bot5')
-                self.ConfigBot6 = self.config.get('settings', 'caracteristic_bot6')
-                self.ConfigBot7 = self.config.get('settings', 'caracteristic_bot7')
-                self.ConfigBot8 = self.config.get('settings', 'caracteristic_bot8')
-                    
-                self.Max_Bot = self.config.getint('settings', 'maximum_bot')
-                self.min_level_kickbots_cmd = self.config.getint('settings', 'min_level_kickbots_cmd')
-                self.min_level_addbot_cmd = self.config.getint('settings', 'min_level_addbot_cmd')
+    #Getting xml config here            
+    def loadBotstuff(self):
+        for bot in self.config.get('bots/bot'):
+            nameBot = bot.find('name').text
+            charBot = bot.find('character').text
+            lvlBot = bot.find('skill').text
+            teamBot = bot.find('team').text
+            pingBot = bot.find('ping').text
+            self._allBots.insert(1, [charBot, lvlBot, teamBot, pingBot, nameBot])
+            self.debug('Bot added: %s %s %s %s %s' % (nameBot, charBot, lvlBot, teamBot, pingBot))
+            self._botminplayers = self.config.getint('settings', 'bot_minplayers')
 
-                
-    #get admin plugin before registering commands
+    #get admin plugin and register commands
     self._adminPlugin = self.console.getPlugin('admin')
                 if not self._adminPlugin:
                     # Error: cannot start without admin plugin
                     self.error('Could not find admin plugin')
-                else:
-                    self._adminPlugin.registerCommand(self, 'kickbots', self.min_level_kickbots_cmd, self.kickBots, 'kb')
-                    self._adminPlugin.registerCommand(self, 'addbots', self.min_level_addbot_cmd, self.addBots, 'ab')
-        
+                
+                if 'commands' in self.config.sections():
+                    for cmd in self.config.options('commands'):
+                        level = self.config.get('commands', cmd)
+                        sp = cmd.split('-')
+                        alias = None
+                        if len(sp) == 2:
+                         cmd, alias = sp
 
+                        func = self.getCmd(cmd)
+                        if func:
+                            self._adminPlugin.registerCommand(self, cmd, level, func, alias)
+        
     def onStartup(self):
         self.registerEvent(b3.events.EVT_GAME_ROUND_START)
         self.registerEvent(b3.events.EVT_GAME_EXIT)
@@ -94,10 +92,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
                     self.addBots() 
         elif event.type == b3.events.EVT_STOP:
             self.console.write("kick allbots")
-"""  # This section to be removed           
-    def onLoadConfig(self):
-        self.loadBotstuff() # Get stuff from the .xml
-        
+
     def getCmd(self, cmd):
         cmd = 'cmd_%s' % cmd
         if hasattr(self, cmd):
@@ -106,6 +101,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
 
         return None
         
+"""  # This section to be removed           
     def loadBotstuff(self):
         for bot in self.config.get('bots/bot'):
             nameBot = bot.find('name').text
@@ -125,7 +121,6 @@ class BothandlerPlugin(b3.plugin.Plugin):
 """ # End of removed section
             
     def addBots(self):
-        #self.debug('self._i = %s' % self._i)
         self._bots = 0
         self._clients = 0
         if self._botstart: # if bots are enabled
@@ -136,33 +131,21 @@ class BothandlerPlugin(b3.plugin.Plugin):
                 if 'BOT' in c.guid:
                     self._clients -= 1
                     self._bots += 1
-                    #self.debug('loop bots = %s' % self._bots)
-            
+
             clients = self._clients
             bots = self._bots
             bclients = self._botminplayers - clients - bots
-            #self.debug('bots = %s' % bots)
-            #self.debug('clients = %s' % clients)
-            #self.debug('bclients = %s' % bclients)
+            
             if bclients == 0 or ((self._clients - self._bots) > self._botminplayers):
                 self.debug('bclients = %s, stopping check' % bclients)
                 return False
-            if self._mapbots > bots:
-                self.debug('self._mapbots = %s, bots = %s. STOPPING' % (self._mapbots, bots))
-                return False
-            self._mapbots = False
-            # bclients = (bots + clients)
-
+            
             if bclients > 0: # Check if we need to add bots
                 self.debug('adding bots')
                 if self._adding:
                     self._i += 1
-                    #self.debug('self._i += 1')
-                    #self.debug('self._i = %s' % self._i)
 
                 while bclients > 0: # Add all the necessary bots
-                    #if bclients == 0:
-                    #    break
                     bclients -= 1
                     if self._i == len(self._allBots):
                         break
@@ -170,23 +153,15 @@ class BothandlerPlugin(b3.plugin.Plugin):
                     self._bots += 1
                     if self._i < (len(self._allBots)):
                         self._i += 1
-                        #self.debug('self._i += 1')
-                        #self.debug('self._i = %s' % self._i)
+
                 self._adding = True
                 if self._i > 0:
                     self._i -= 1
-                #self.debug('self._i -= 1')
-                #self.debug('self._i = %s' % self._i)
-                    
+
             elif bclients < 0: # Check if we need to kick bots
                 self.debug('kicking bots')
                 while bclients < 0:
-                    #if bclients == 0:
-                    #    self.debug('BREAKED CAUSE ITS 0(kicking)')
-                    #    break
-                
-                    #self.debug('player = %s' % self._allBots[self._i][4])
-                    #self.debug('i(kick) = %s and i = %s' % (self._allBots[self._i][4], self._i))
+
                     self._bots -= 1
                     bclients += 1
                     self.console.write('kick %s' % self._allBots[self._i][4])
@@ -195,7 +170,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
                 self._adding = True
                 
     def enableBots(self):
-        self.console.say('No-bots time finished, adding bots...')
+        self.console.say('Bots on the way, brace yourself...')
         self._botstart = True
         self.addBots()
 
@@ -205,7 +180,6 @@ class BothandlerPlugin(b3.plugin.Plugin):
         self._clients = 0
         self._i = 0
         self._adding = False
-        self._mapbots = False
         self.console.write("kick allbots")
 
     def cmd_kickbots(self, data, client, cmd=None):
@@ -217,7 +191,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
         if not input:
             client.message('^7You ^1kicked ^7all bots in the server')
             client.message('^7Use ^2!addbots ^7to add them')
-            return false
+            return None
 
         regex = re.compile(r"""^(?P<number>\d+)$""");
         match = regex.match(data)
