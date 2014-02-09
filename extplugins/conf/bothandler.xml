@@ -1,0 +1,68 @@
+<configuration plugin="ultraadmin">
+   <settings name="commands">
+        <set name="kickbots-kb">40</set>
+        <set name="addbots-ab">40</set>
+   </settings>
+   <settings name="settings">
+        <set name="bot_minplayers">4</set>
+    </settings>
+   <bots>
+        <bot>
+            <name>SuperStar</name>
+            <character>Boa</character>
+            <skill>4</skill>
+            <team>red</team>
+            <ping>0</ping>
+        </bot>
+        <bot>
+            <name>Desperado</name>
+            <character>Cougar</character>
+            <skill>4</skill>
+            <team>blue</team>
+            <ping>0</ping>
+        </bot>
+        <bot>
+            <name>Heineken</name>
+            <character>Python</character>
+            <skill>5</skill>
+            <team>red</team>
+            <ping>0</ping>
+        </bot>
+        <bot>
+            <name>Royalty</name>
+            <character>Puma</character>
+            <skill>4</skill>
+            <team>blue</team>
+            <ping>0</ping>
+        </bot>
+        <bot>
+            <name>PieEater</name>
+            <character>Mantis</character>
+            <skill>4</skill>
+            <team>red</team>
+            <ping>0</ping>
+        </bot>
+        <bot>
+            <name>Cheesy</name>
+            <character>Mantis</character>
+            <skill>4</skill>
+            <team>blue</team>
+            <ping>0</ping>
+        </bot>
+        <bot>
+            <name>RustyChef</name>
+            <character>Cougar</character>
+            <skill>5</skill>
+            <team>red</team>
+            <ping>0</ping>
+        </bot>
+        <bot>
+            <name>KillShot</name>
+            <character>Python</character>
+            <skill>5</skill>
+            <team>blue</team>
+            <ping>0</ping>
+        </bot>
+    </bots>
+</configuration>
+
