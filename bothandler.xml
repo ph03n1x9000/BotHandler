@@ -1,50 +1,12 @@
-<configuration plugin="Bothandler">
-
-	<settings name="settings">
-		<!-- Bots Configuration-->
-		<set name="name_bot1">BOT1</set>
-		<set name="caracteristic_bot1">python 3 blue 110</set>
-		<set name="name_bot2">BOT2</set>
-		<set name="caracteristic_bot2">python 3 red 110</set>
-		<set name="name_bot3">BOT3</set>
-		<set name="caracteristic_bot3">python 3 blue 110</set>
-		<set name="name_bot4">BOT4</set>
-		<set name="caracteristic_bot4">python 3 red 110</set>
-		<set name="name_bot5">BOT5</set>
-		<set name="caracteristic_bot5">python 3 blue 110</set>
-		<set name="name_bot6">BOT6</set>
-		<set name="caracteristic_bot6">python 3 red 110</set>
-		<set name="name_bot7">BOT7</set>
-		<set name="caracteristic_bot7">python 3 blue 110</set>
-		<set name="name_bot8">BOT8</set>
-		<set name="caracteristic_bot8">python 3 red 110</set>
-		<!-- Handling of bots -->
-		<set name="maximum_bot">8</set>
-		<set name="min_level_kickbots_cmd">60</set>
-		<set name="min_level_addbot_cmd">60</set>
-	</settings>
-
-</configuration>
-
-
-<!-- OLD CONFIG SETTINGS 
-
 <configuration plugin="ultraadmin">
    <settings name="commands">
-        <set name="addmaps-amaps">100</set>
-        <set name="remmaps-rmaps">100</set>
-        <set name="kickbots-kbots">40</set>
-        <set name="addbots-abots">40</set>
+        <set name="kickbots-kb">40</set>
+        <set name="addbots-ab">40</set>
    </settings>
    <settings name="settings">
-        <set name="source_path"></set>
-        <set name="destination_path"></set>
-        <set name="custom_maps">ut4_abbey, ut4_algiers, ut4_turnpike, ut4_riyadh</set>
-        <set name="new_mapcycle">mapcycle2.txt</set>
         <set name="bot_minplayers">4</set>
-        <set name="min_addmaps_players">16</set>
     </settings>
-    <bots>
+   <bots>
         <bot>
             <name>SuperStar</name>
             <character>Boa</character>
@@ -103,6 +65,4 @@
         </bot>
     </bots>
 </configuration>
-
--->
 
