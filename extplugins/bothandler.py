@@ -99,25 +99,6 @@ class BothandlerPlugin(b3.plugin.Plugin):
 
         return None
         
-"""  # This section to be removed           
-    def loadBotstuff(self):
-        for bot in self.config.get('bots/bot'):
-            nameBot = bot.find('name').text
-            charBot = bot.find('character').text
-            lvlBot = bot.find('skill').text
-            teamBot = bot.find('team').text
-            pingBot = bot.find('ping').text
-            self._allBots.insert(1, [charBot, lvlBot, teamBot, pingBot, nameBot])
-            self.debug('Bot added: %s %s %s %s %s' % (nameBot, charBot, lvlBot, teamBot, pingBot))
-                    
-        try:
-            self._botminplayers = self.config.getint('settings', 'bot_minplayers')
-            if self._botminplayers < 0:
-                self._botminplayers = 0
-        except:
-            self._botminplayers = 4
-""" # End of removed section
-            
     def addBots(self):
         self._bots = 0
         self._clients = 0
