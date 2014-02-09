@@ -60,8 +60,6 @@ class BothandlerPlugin(b3.plugin.Plugin):
         self.registerEvent(b3.events.EVT_CLIENT_DISCONNECT)
         self.registerEvent(b3.events.EVT_STOP)
 
-     ### Stopped here ###
-       
     def onEvent(self, event):
         if event.type == b3.events.EVT_GAME_ROUND_START:
                 self.console.write('bot_minplayers "0"')
