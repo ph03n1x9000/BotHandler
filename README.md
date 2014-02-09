@@ -1,8 +1,9 @@
 BotHandler
 ==========
 
-B3 plugin that handles game bots on Urban Terror server
+B3 plugin that handles game bots for Urban Terror server
 
-A complete makeover of TheLouk's BotMapsUrt B3 plugin for Urban Terror.
+This is complete makeover of TheLouk's BotMapsUrt B3 plugin for Urban Terror. Thanks to LouK for that!
 
-The goal is to have seamless and smooth bot handling.
+The goal is to have smooth bot handling without map functions.
+
