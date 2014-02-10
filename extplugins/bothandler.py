@@ -21,7 +21,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
     
     #Function to get details from config file
     def onLoadConfig(self):
-                self.loadBotstuff()
+        self.loadBotstuff()
                 
     #Getting xml config here            
     def loadBotstuff(self):
@@ -37,21 +37,21 @@ class BothandlerPlugin(b3.plugin.Plugin):
 
     #get admin plugin and register commands
     self._adminPlugin = self.console.getPlugin('admin')
-                if not self._adminPlugin:
-                    # Error: cannot start without admin plugin
-                    self.error('Could not find admin plugin')
+            if not self._adminPlugin:
+                # Error: cannot start without admin plugin
+                self.error('Could not find admin plugin')
                 
-                if 'commands' in self.config.sections():
-                    for cmd in self.config.options('commands'):
-                        level = self.config.get('commands', cmd)
-                        sp = cmd.split('-')
-                        alias = None
-                        if len(sp) == 2:
-                         cmd, alias = sp
+            if 'commands' in self.config.sections():
+                for cmd in self.config.options('commands'):
+                    level = self.config.get('commands', cmd)
+                    sp = cmd.split('-')
+                    alias = None
+                    if len(sp) == 2:
+                        cmd, alias = sp
 
-                        func = self.getCmd(cmd)
-                        if func:
-                            self._adminPlugin.registerCommand(self, cmd, level, func, alias)
+                    func = self.getCmd(cmd)
+                    if func:
+                        self._adminPlugin.registerCommand(self, cmd, level, func, alias)
         
     def onStartup(self):
         self.registerEvent(b3.events.EVT_GAME_ROUND_START)
