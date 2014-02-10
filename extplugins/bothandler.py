@@ -11,7 +11,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
     _allBots = []
     _clients = 0 # Clients control at round_start
     _botstart = True # To control if the plugin has to to add bots or not
-    _botminplayers = 6 # Add bots until this number of players in game
+    _botminplayers = 4 # Add bots until this number of players in game
     _clients = 0 # Clients number
     _bots = 0 # bots number
     _i = 0 # used in funtioning
