@@ -1,4 +1,22 @@
-__version__ = '1.0'
+# BotHandler Plugin for BigBrotherBot(B3) (www.bigbrotherbot.net)
+# Copyright (C) 2014 ph03n1x
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+ 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#
+
+__version__ = '1.0.0'
 __author__ = 'ph03n1x'
 
 import b3, time, threading, re
@@ -6,183 +24,170 @@ import b3.events
 import b3.plugin
 import shutil
 import os
-    
+
+    _clients = 0 # Clients at round start
+    _bots = 0 # Bots at round start
+    _usebots = True
+
 class BothandlerPlugin(b3.plugin.Plugin):
-    _allBots = []
-    _clients = 0 # Clients control at round_start
-    _botstart = True # To control if the plugin has to to add bots or not
-    _botminplayers = 4 # Add bots until this number of players in game
-    _clients = 0 # Clients number
-    _bots = 0 # bots number
-    _i = 0 # used in funtioning
-    _adding = False
-    _first = True
-    
-    
-    #Function to get details from config file
+    requiresConfigFile = True
+
     def onLoadConfig(self):
-        self.loadBotstuff()
-                
-    #Getting xml config here
-    def loadBotstuff(self):
-        for bot in self.config.get('bots/bot'):
-            nameBot = bot.find('name').text
-            charBot = bot.find('character').text
-            lvlBot = bot.find('skill').text
-            teamBot = bot.find('team').text
-            pingBot = bot.find('ping').text
-            self._allBots.insert(1, [charBot, lvlBot, teamBot, pingBot, nameBot])
-            self.debug('Bot added: %s %s %s %s %s' % (nameBot, charBot, lvlBot, teamBot, pingBot))
-            self._botminplayers = self.config.getint('settings', 'bot_minplayers')
+        self.verbose('Loading config')
+        cmdlvl = self.config.get('settings', 'admin_level')
+        botminplayers = self.config.get('settings', 'bot_amount')
+        bot1 = self.config.get('bots', 'bot1')
+        bot2 = self.config.get('bots', 'bot2')
+        bot3 = self.config.get('bots', 'bot3')
+        bot4 = self.config.get('bots', 'bot4')
+        bot5 = self.config.get('bots', 'bot5')
+        bot6 = self.config.get('bots', 'bot6')
+        bot7 = self.config.get('bots', 'bot7')
+        bot8 = self.config.get('bots', 'bot8')
 
-    #get admin plugin and register commands
-    self._adminPlugin = self.console.getPlugin('admin')
-    if not self._adminPlugin:
-        # Error: cannot start without admin plugin
-        self.error('Could not find admin plugin')
-                
-        if 'commands' in self.config.sections():
-            for cmd in self.config.options('commands'):
-                level = self.config.get('commands', cmd)
-                sp = cmd.split('-')
-                alias = None
-                if len(sp) == 2:
-                    cmd, alias = sp
-
-                    func = self.getCmd(cmd)
-                    if func:
-                        self._adminPlugin.registerCommand(self, cmd, level, func, alias)
-        
     def onStartup(self):
-        self.registerEvent(b3.events.EVT_GAME_ROUND_START)
-        self.registerEvent(b3.events.EVT_GAME_EXIT)
+        # get the admin plugin so we can register commands
+        self._adminPlugin = self.console.getPlugin('admin')
+ 
+        if not self._adminPlugin:
+            # something is wrong, can't start without admin plugin
+            self.error('Could not find admin plugin')
+            return
+
+        #registering commands
+        self._adminPlugin.registerCommand(self, 'kickbots', int(cmdlvl), self.kickBots, 'kb')
+        self._adminPlugin.registerCommand(self, 'addbots', int(cmdlvl), self.addBots, 'ab')
+
+        # Registering events
+        self.verbose('Registering events')
         self.registerEvent(b3.events.EVT_CLIENT_AUTH)
         self.registerEvent(b3.events.EVT_CLIENT_DISCONNECT)
+        self.registerEvent(b3.events.EVT_CLIENT_JOIN)
+        self.registerEvent(b3.events.EVT_CLIENT_TEAM_CHANGE)
+        self.registerEvent(b3.events.EVT_GAME_EXIT)
+        self.registerEvent(b3.events.EVT_GAME_ROUND_START)
         self.registerEvent(b3.events.EVT_STOP)
 
+        #kick all bots that might already be in game and make sure bots are enabled
+        self.console.write("kick allbots")
+        self.consold.write("bot_enable 1")
+        self._bots = 0
+
     def onEvent(self, event):
-        if event.type == b3.events.EVT_GAME_ROUND_START:
-                self.console.write('bot_minplayers "0"')
-                self.console.write("kick allbots")
-                self.addBots()
-        elif event.type == b3.events.EVT_GAME_EXIT:
-            if self._clients <= self._botminplayers:
-                    self.console.write("bot_enable 1")
-            if self._botstart:
-                    self._botstart = False
-            else:
-                self._first = True
-        elif event.type == b3.events.EVT_CLIENT_AUTH:
+        if event.type == b3.EVT_GAME_ROUND_START:
+            self.console.write('bot_minplayers "0"')
+            self.console.write("kick allbots")
+            self.addBots()
+        elif event.type == b3.events.EVT_CLIENT_JOIN:
             sclient = event.client
-            if self._botstart:
+            if self._usebots:
                 self.addBots()
-        elif 'BOT' not in sclient.guid:
-                if self._botstart:
+            elif 'BOT' not in sclient.guid:
+                if self._usebots:
                     self.addBots()
                 else:
                     self._clients = 0
-                    for c in self.console.clients.getClientsByLevel(): # Get allplayers
+                    for c in self.console.clients.getClientsByLevel(): #get current players again
                         self._clients += 1
         elif event.type == b3.events.EVT_CLIENT_DISCONNECT:
-            sclient = event.client
-            if 'BOT' not in sclient.guid:
-                if self._botstart:
+                sclient = event.client
+                if 'BOT' not in sclient.guid:
+                if self._usebots:
                     self.addBots()
         elif event.type == b3.events.EVT_STOP:
-            self.console.write("kick allbots")
-
-    def getCmd(self, cmd):
-        cmd = 'cmd_%s' % cmd
-        if hasattr(self, cmd):
-            func = getattr(self, cmd)
-            return func
-
-        return None
-        
-    def addBots(self):
-        self._bots = 0
-        self._clients = 0
-        if self._botstart: # if bots are enabled
-            self.console.write("bot_enable 1")
-            for c in self.console.clients.getClientsByLevel(): # Get allplayers
-                self._clients += 1
+                self.console.write("kick allbots")
                 
+    def addBots(self):
+        self.console.write('bpt_enable 1')
+        self._usebots = True
+        self._clients = 0
+        for c in self.console.clients.getClientsByLevel(): # Get allplayers
+                self._clients += 1
+
                 if 'BOT' in c.guid:
                     self._clients -= 1
                     self._bots += 1
 
-            clients = self._clients
-            bots = self._bots
-            bclients = self._botminplayers - clients - bots
-            
-            if bclients == 0 or ((self._clients - self._bots) > self._botminplayers):
-                self.debug('bclients = %s, stopping check' % bclients)
-                return False
-            
-            if bclients > 0: # Check if we need to add bots
-                self.debug('adding bots')
-                if self._adding:
-                    self._i += 1
+        humans = self._clients
+        bots = self._bots
+        humanbots = humans + bots
+        toadd = self.botminplayers - humanbots
 
-                while bclients > 0: # Add all the necessary bots
-                    bclients -= 1
-                    if self._i == len(self._allBots):
-                        break
-                    self.console.write('addbot %s %s %s %s %s' % (self._allBots[self._i][0], self._allBots[self._i][1], self._allBots[self._i][2], self._allBots[self._i][3], self._allBots[self._i][4]))
-                    self._bots += 1
-                    if self._i < (len(self._allBots)):
-                        self._i += 1
+        if humanbots < self.botminplayers:
+            self.verbose('Adding bots')
+            if toadd == 8:
+                self.console.write('addbot %s' % (self.bot1))
+                self.console.write('addbot %s' % (self.bot2))
+                self.console.write('addbot %s' % (self.bot3))
+                self.console.write('addbot %s' % (self.bot4))
+                self.console.write('addbot %s' % (self.bot5))
+                self.console.write('addbot %s' % (self.bot6))
+                self.console.write('addbot %s' % (self.bot7))
+                self.console.write('addbot %s' % (self.bot8))
+            elif toadd == 7:
+                self.console.write('addbot %s' % (self.bot2))
+                self.console.write('addbot %s' % (self.bot3))
+                self.console.write('addbot %s' % (self.bot4))
+                self.console.write('addbot %s' % (self.bot5))
+                self.console.write('addbot %s' % (self.bot6))
+                self.console.write('addbot %s' % (self.bot7))
+                self.console.write('addbot %s' % (self.bot8))
 
-                self._adding = True
-                if self._i > 0:
-                    self._i -= 1
-
-            elif bclients < 0: # Check if we need to kick bots
-                self.debug('kicking bots')
-                while bclients < 0:
-
-                    self._bots -= 1
-                    bclients += 1
-                    self.console.write('kick %s' % self._allBots[self._i][4])
-                    self._i -= 1
-
-                self._adding = True
+            elif toadd == 6:
                 
-    def enableBots(self):
+                self.console.write('addbot %s' % (self.bot3))
+                self.console.write('addbot %s' % (self.bot4))
+                self.console.write('addbot %s' % (self.bot5))
+                self.console.write('addbot %s' % (self.bot6))
+                self.console.write('addbot %s' % (self.bot7))
+                self.console.write('addbot %s' % (self.bot8))
+            elif toadd == 5:
+                
+                self.console.write('addbot %s' % (self.bot4))
+                self.console.write('addbot %s' % (self.bot5))
+                self.console.write('addbot %s' % (self.bot6))
+                self.console.write('addbot %s' % (self.bot7))
+                self.console.write('addbot %s' % (self.bot8))
+            elif toadd == 4:
+                self.console.write('addbot %s' % (self.bot5))
+                self.console.write('addbot %s' % (self.bot6))
+                self.console.write('addbot %s' % (self.bot7))
+                self.console.write('addbot %s' % (self.bot8))
+            elif toadd == 3:
+                self.console.write('addbot %s' % (self.bot6))
+                self.console.write('addbot %s' % (self.bot7))
+                self.console.write('addbot %s' % (self.bot8))
+            elif toadd == 2:
+                self.console.write('addbot %s' % (self.bot7))
+                self.console.write('addbot %s' % (self.bot8))
+            elif toadd == 1:
+                self.console.write('addbot %s' % (self.bot8))
+            else
+                client.message('^2Bots already on server')
+                
+    def reEnable(self):
         self.console.say('Bots on the way, brace yourself...')
-        self._botstart = True
+        self._usebots = True
         self.addBots()
 
-    def disableBots(self):
-        self._botstart = False
-        self._bots = 0
-        self._clients = 0
-        self._i = 0
-        self._adding = False
-        self.console.write("kick allbots")
-
-    def cmd_kickbots(self, data, client, cmd=None):
+    def kickBots(self, data, client, cmd=None):
         """\
         kick all bots in the server. <perm> to kick them until you use !addbots
         """
         input = self._adminPlugin.parseUserCmd(data)
-        self.disableBots()
+        self._usebots = False
         if not input:
+            self.console.write('kick allbots')
             client.message('^7You ^1kicked ^7all bots in the server')
-            client.message('^7Use ^2!addbots ^7to add them')
+            client.message('^7Use ^2!ab ^7to add them')
             return None
 
         regex = re.compile(r"""^(?P<number>\d+)$""");
         match = regex.match(data)
 
         time = int(match.group('number'))
-        t = threading.Timer((time * 60), self.enableBots)
+        t = threading.Timer((time * 60), self.reEnable)
         t.start()
         client.message('^7You ^1kicked ^7all bots in the server for ^5%s ^7minutes' % time)
-        client.message('^7Use ^2!addbots ^7to add them')
+        client.message('^7Use ^2!ab ^7to add them')
         
-    def cmd_addbots(self, data, client, cmd=None):
-        #Add bots to the server
-        self._botstart = True
-        self.addBots()
-        client.message('^7Bots ^2added^7.')
