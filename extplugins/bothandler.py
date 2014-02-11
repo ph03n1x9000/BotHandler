@@ -25,12 +25,12 @@ import b3.plugin
 import shutil
 import os
 
-    _clients = 0 # Clients at round start
-    _bots = 0 # Bots at round start
-    _usebots = True
 
 class BothandlerPlugin(b3.plugin.Plugin):
     requiresConfigFile = True
+    _clients = 0 # Clients at round start
+    _bots = 0 # Bots at round start
+    _usebots = True
 
     def onLoadConfig(self):
         self.verbose('Loading config')
@@ -98,7 +98,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
                 self.console.write("kick allbots")
                 
     def addBots(self):
-        self.console.write('bpt_enable 1')
+        self.console.write('bot_enable 1')
         self._usebots = True
         self._clients = 0
         for c in self.console.clients.getClientsByLevel(): # Get allplayers
@@ -132,9 +132,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
                 self.console.write('addbot %s' % (self.bot6))
                 self.console.write('addbot %s' % (self.bot7))
                 self.console.write('addbot %s' % (self.bot8))
-
             elif toadd == 6:
-                
                 self.console.write('addbot %s' % (self.bot3))
                 self.console.write('addbot %s' % (self.bot4))
                 self.console.write('addbot %s' % (self.bot5))
@@ -142,7 +140,6 @@ class BothandlerPlugin(b3.plugin.Plugin):
                 self.console.write('addbot %s' % (self.bot7))
                 self.console.write('addbot %s' % (self.bot8))
             elif toadd == 5:
-                
                 self.console.write('addbot %s' % (self.bot4))
                 self.console.write('addbot %s' % (self.bot5))
                 self.console.write('addbot %s' % (self.bot6))
