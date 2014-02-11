@@ -175,7 +175,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
         self._usebots = False
         if not input:
             self.console.write('kick allbots')
-            client.message('^7You ^1kicked ^7all bots in the server')
+            client.message('^7You ^1kicked ^7all bots')
             client.message('^7Use ^2!ab ^7to add them')
             return None
 
@@ -185,6 +185,6 @@ class BothandlerPlugin(b3.plugin.Plugin):
         time = int(match.group('number'))
         t = threading.Timer((time * 60), self.reEnable)
         t.start()
-        client.message('^7You ^1kicked ^7all bots in the server for ^5%s ^7minutes' % time)
+        client.message('^7You ^1kicked ^7all bots for ^5%s ^7minutes' % time)
         client.message('^7Use ^2!ab ^7to add them')
         
