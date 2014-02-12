@@ -71,8 +71,9 @@ class BothandlerPlugin(b3.plugin.Plugin):
 
     def onEvent(self, event):
         if event.type == b3.EVT_GAME_ROUND_START:
-            self.console.write("kick allbots")
-            self.addBots()
+            if self._usebots == True
+                self.console.write("kick allbots")
+                self.addBots()
         elif event.type == b3.events.EVT_CLIENT_JOIN:
             sclient = event.client
             if self._usebots:
