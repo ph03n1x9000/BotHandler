@@ -110,7 +110,6 @@ class BothandlerPlugin(b3.plugin.Plugin):
         
         if to_add > 0:
             self.verbose('Adding bots')
-            self._botlist = 0
             while to_add > 0:
                 self.console.write('addbot %s %s %s %s %s' % (self._allBots[self._botlist][0], self._allBots[self._botlist][1], self._allBots[self._botlist][2], self._allBots[self._botlist][3], self._allBots[self._botlist][4]))
                 self._bots + 1
