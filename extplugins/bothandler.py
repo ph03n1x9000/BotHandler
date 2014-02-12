@@ -28,23 +28,19 @@ import os
 
 class BothandlerPlugin(b3.plugin.Plugin):
     requiresConfigFile = True
+    _allBots = []
     _clients = 0 # Clients at round start
     _bots = 0 # Bots at round start
     _usebots = True
+    _botlist = 0 # Will be changed when settings are loaded (do not touch)
+    
 
     def onLoadConfig(self):
         self.verbose('Loading config')
+        self.loadBotconfig()
         cmdlvl = self.config.get('settings', 'admin_level')
         botminplayers = self.config.get('settings', 'bot_amount')
-        bot1 = self.config.get('bots', 'bot1')
-        bot2 = self.config.get('bots', 'bot2')
-        bot3 = self.config.get('bots', 'bot3')
-        bot4 = self.config.get('bots', 'bot4')
-        bot5 = self.config.get('bots', 'bot5')
-        bot6 = self.config.get('bots', 'bot6')
-        bot7 = self.config.get('bots', 'bot7')
-        bot8 = self.config.get('bots', 'bot8')
-
+        
     def onStartup(self):
         # get the admin plugin so we can register commands
         self._adminPlugin = self.console.getPlugin('admin')
@@ -97,11 +93,12 @@ class BothandlerPlugin(b3.plugin.Plugin):
                 self.console.write("kick allbots")
                 
     def addBots(self):
-        self.console.write('bot_enable 1')
         self._usebots = True
         self._clients = 0
+        self._bots = 0
+        self.console.write("bot_enable 1")
         for c in self.console.clients.getClientsByLevel(): # Get allplayers
-                self._clients += 1
+            self._clients += 1
 
                 if 'BOT' in c.guid:
                     self._clients -= 1
@@ -109,58 +106,30 @@ class BothandlerPlugin(b3.plugin.Plugin):
 
         humans = self._clients
         bots = self._bots
-        humanbots = humans + bots
-        toadd = self.botminplayers - humanbots
-
-        if humanbots < self.botminplayers:
+        to_add = self.botminplayers - humans - bots
+        
+        if to_add > 0:
             self.verbose('Adding bots')
-            if toadd == 8:
-                self.console.write('addbot %s' % (self.bot1))
-                self.console.write('addbot %s' % (self.bot2))
-                self.console.write('addbot %s' % (self.bot3))
-                self.console.write('addbot %s' % (self.bot4))
-                self.console.write('addbot %s' % (self.bot5))
-                self.console.write('addbot %s' % (self.bot6))
-                self.console.write('addbot %s' % (self.bot7))
-                self.console.write('addbot %s' % (self.bot8))
-            elif toadd == 7:
-                self.console.write('addbot %s' % (self.bot2))
-                self.console.write('addbot %s' % (self.bot3))
-                self.console.write('addbot %s' % (self.bot4))
-                self.console.write('addbot %s' % (self.bot5))
-                self.console.write('addbot %s' % (self.bot6))
-                self.console.write('addbot %s' % (self.bot7))
-                self.console.write('addbot %s' % (self.bot8))
-            elif toadd == 6:
-                self.console.write('addbot %s' % (self.bot3))
-                self.console.write('addbot %s' % (self.bot4))
-                self.console.write('addbot %s' % (self.bot5))
-                self.console.write('addbot %s' % (self.bot6))
-                self.console.write('addbot %s' % (self.bot7))
-                self.console.write('addbot %s' % (self.bot8))
-            elif toadd == 5:
-                self.console.write('addbot %s' % (self.bot4))
-                self.console.write('addbot %s' % (self.bot5))
-                self.console.write('addbot %s' % (self.bot6))
-                self.console.write('addbot %s' % (self.bot7))
-                self.console.write('addbot %s' % (self.bot8))
-            elif toadd == 4:
-                self.console.write('addbot %s' % (self.bot5))
-                self.console.write('addbot %s' % (self.bot6))
-                self.console.write('addbot %s' % (self.bot7))
-                self.console.write('addbot %s' % (self.bot8))
-            elif toadd == 3:
-                self.console.write('addbot %s' % (self.bot6))
-                self.console.write('addbot %s' % (self.bot7))
-                self.console.write('addbot %s' % (self.bot8))
-            elif toadd == 2:
-                self.console.write('addbot %s' % (self.bot7))
-                self.console.write('addbot %s' % (self.bot8))
-            elif toadd == 1:
-                self.console.write('addbot %s' % (self.bot8))
-            else
-                client.message('^2Bots already on server')
-                
+            self._botlist = 0
+            while to_add > 0:
+                self.console.write('addbot %s %s %s %s %s' % (self._allBots[self._botlist][0], self._allBots[self._botlist][1], self._allBots[self._botlist][2], self._allBots[self._botlist][3], self._allBots[self._botlist][4]))
+                self._bots + 1
+                self._botlist + 1
+        elif to_add < 0:
+            while to_add < 0:
+                self.console.write('kick %s' % (self._allBots[self._botlist][4])
+                self._bots - 1
+                self._botlist - 1
+        
+    def loadBotconfig(self):
+        for bot in self.config.get('bots/bot'):
+            nameBot = bot.find('name').text
+            charBot = bot.find('character').text
+            lvlBot = bot.find('skill').text
+            teamBot = bot.find('team').text
+            pingBot = bot.find('ping').text
+            self._allBots.insert(1, [charBot, lvlBot, teamBot, pingBot, nameBot])
+
     def reEnable(self):
         self.console.say('Bots on the way, brace yourself...')
         self._usebots = True
