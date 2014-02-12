@@ -1,28 +1,66 @@
 <configuration plugin="bothandler">
-	<settings name="settings">
-		 <!-- Edit this to indicate what B3 user level can use commands for this plugin -->
-		 <set name="admin_level">20</set>
-		 <!-- How many bots to use? (Max: 8)-->
-	<set name="bot_amount">6</set>
-   </settings>
-	<!-- Add bots below. Usage: <bot name> <level> <team> <ping> <alias>.
-	Example: python 5 blue 110 =lvl5=python -->
-	<settings name="bots">
-	    <set name="bot1_name">Superdupont</set>
-	    <set name="bot1">klown 5 blue 40</set>
-	    <set name="bot2_name">Golem</set>
-	    <set name="bot2">jenny 5 red 110</set>
-	    <set name="bot3_name">DevilMan</set>
-	    <set name="bot3">ohplease 5 blue 80</set>
-	    <set name="bot4_name">ElMatador</set>
-	    <set name="bot4">Pearl 5 red 60</set>
-	    <set name="bot5_name">Cupid</set>
-	    <set name="bot5">python 5 blue 70 Cupid</set>
-	    <set name="bot6_name">PsychoKiller</set>
-	    <set name="bot6">klown 5 red 90</set>
-	    <set name="bot7_name">BloodLeech</set>
-	    <set name="bot7">jenny 5 blue 30</set>
-	    <set name="bot8_name">Nightmare</set>
-	    <set name="bot8">python 5 red 50</set>
+    <settings name="settings">
+	<!-- Edit this to indicate what B3 user level can use commands for this plugin -->
+	<set name="admin_level">20</set>
+	<!-- How many bots to use? (Max: 8)-->
+        <set name="bot_amount">6</set>
+    </settings>
+        <bot>
+            <name>SuperStar</name>
+            <character>Boa</character>
+            <skill>4</skill>
+            <team>red</team>
+            <ping>0</ping>
+        </bot>
+        <bot>
+            <name>Desperado</name>
+            <character>Cougar</character>
+            <skill>4</skill>
+            <team>blue</team>
+            <ping>0</ping>
+        </bot>
+        <bot>
+            <name>Heineken</name>
+            <character>Python</character>
+            <skill>5</skill>
+            <team>red</team>
+            <ping>0</ping>
+        </bot>
+        <bot>
+            <name>Royalty</name>
+            <character>Puma</character>
+            <skill>4</skill>
+            <team>blue</team>
+            <ping>0</ping>
+        </bot>
+        <bot>
+            <name>PieEater</name>
+            <character>Mantis</character>
+            <skill>4</skill>
+            <team>red</team>
+            <ping>0</ping>
+        </bot>
+        <bot>
+            <name>Cheesy</name>
+            <character>Mantis</character>
+            <skill>4</skill>
+            <team>blue</team>
+            <ping>0</ping>
+        </bot>
+        <bot>
+            <name>RustyChef</name>
+            <character>Cougar</character>
+            <skill>5</skill>
+            <team>red</team>
+            <ping>0</ping>
+        </bot>
+        <bot>
+            <name>KillShot</name>
+            <character>Python</character>
+            <skill>5</skill>
+            <team>blue</team>
+            <ping>0</ping>
+        </bot>
+    </bots>
    </settings>
 </configuration>
