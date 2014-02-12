@@ -100,7 +100,6 @@ class BothandlerPlugin(b3.plugin.Plugin):
         self.console.write("bot_enable 1")
         for c in self.console.clients.getClientsByLevel(): # Get allplayers
             self._clients += 1
-
                 if 'BOT' in c.guid:
                     self._clients -= 1
                     self._bots += 1
