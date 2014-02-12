@@ -5,6 +5,7 @@
 	<!-- How many bots to use? (Max: 8)-->
         <set name="bot_amount">6</set>
     </settings>
+    <bots>
         <bot>
             <name>SuperStar</name>
             <character>Boa</character>
@@ -62,5 +63,4 @@
             <ping>0</ping>
         </bot>
     </bots>
-   </settings>
 </configuration>
