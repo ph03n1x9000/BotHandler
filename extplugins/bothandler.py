@@ -71,16 +71,16 @@ class BothandlerPlugin(b3.plugin.Plugin):
 
     def onEvent(self, event):
         if event.type == b3.EVT_GAME_ROUND_START:
-            if self._usebots == True
+            if self._usebots:
                 self.console.write("kick allbots")
                 self.addBots()
-        elif event.type == b3.events.EVT_CLIENT_JOIN:
-            sclient = event.client
-            if self._usebots: or 'BOT' not in sclient.guid and self._usebots:
+        elif event.type == b3.events.EVT_CLIENT_AUTH:
+            newclient = event.client
+            if 'BOT' not in newclient.guid and self._usebots:
                 self.addBots() 
             else:
                 self._clients = 0
-                for c in self.console.clients.getClientsByLevel(): #get current players again
+                for c in self.console.clients.getClientsByLevel(): #get players
                     self._clients += 1
         elif event.type == b3.events.EVT_CLIENT_DISCONNECT:
                 sclient = event.client
@@ -94,7 +94,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
         self._clients = 0
         self._bots = 0
         self.console.write("bot_enable 1")
-        for c in self.console.clients.getClientsByLevel(): # Get allplayers
+        for c in self.console.clients.getClientsByLevel(): # Get players
             self._clients += 1
                 if 'BOT' in c.guid:
                     self._clients -= 1
