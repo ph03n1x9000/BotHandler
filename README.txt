@@ -6,6 +6,7 @@ BotHandler
 B3 plugin that handles game bots for Urban Terror server
 The goal is to have smooth bot handling...
 
+Special thanks to TheLouK (www.sniperjum.com)!
 
 ========== INSTALLATION ==========
 
@@ -17,5 +18,9 @@ The goal is to have smooth bot handling...
 
 ======================================= 
 
+Todo:
+Add amount specific bot addition.
 
-CURRENTLY NOT FUNCTIONING!!! 
+Changelog:
+
+Complete recode from scratch...Fully Functional!
