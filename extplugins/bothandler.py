@@ -183,7 +183,6 @@ class BothandlerPlugin(b3.plugin.Plugin):
         while more > 0:
             more -= 1
             self.console.write('addbot %s' % (self._more_bots[0][more]))
-            client.message('^2Extra bots added. They will be kicked on next map start')
 
     def cmd_kickbots(self, data, client, cmd=None):
         input = self._adminPlugin.parseUserCmd(data)
@@ -211,4 +210,6 @@ class BothandlerPlugin(b3.plugin.Plugin):
             match = regex.match(data)
             self._more = int(match.group('number'))
             self.moreBots()
+            client.message('^2Extra bots added. They will be kicked on next map start')
+
             
