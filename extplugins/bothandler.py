@@ -33,6 +33,8 @@ class BothandlerPlugin(b3.plugin.Plugin):
     _i = 0 # Used in secondary functions
     _adding = False
     _first = True
+    _more = 0
+    _more_bots []
     
     def onStartup(self):
         self.registerEvent(b3.events.EVT_GAME_ROUND_START)
@@ -107,6 +109,9 @@ class BothandlerPlugin(b3.plugin.Plugin):
             self._allBots.insert(1, [charBot, lvlBot, teamBot, pingBot, nameBot])
             self.debug('Bot added: %s %s %s %s %s' % (nameBot, charBot, lvlBot, teamBot, pingBot))
             self._botminplayers = self.config.getint('settings', 'bot_minplayers')
+            moreBot1 = self.config.get('more_bots', 'bot1')
+            moreBot2 = self.config.get('more_bots', 'bot2')
+            self._more_bots.insert(1, [moreBot2, moreBot1])
                     
                     
     def addBots(self):
@@ -168,6 +173,17 @@ class BothandlerPlugin(b3.plugin.Plugin):
         self._i = 0
         self._adding = False
         self.console.write("kick allbots")
+        
+    def moreBots(self):
+        if self._more > 2:
+            self._more = 2
+            client.message('Warning: Extra bots limit is 2...auto-changed to 2')
+            
+        more = self._more
+        while more > 0:
+            more -= 1
+            self.console.write('addbot %s' % (self._more_bots[0][more]))
+            client.message('^2Extra bots added. They will be kicked on next map start')
 
     def cmd_kickbots(self, data, client, cmd=None):
         input = self._adminPlugin.parseUserCmd(data)
@@ -185,6 +201,14 @@ class BothandlerPlugin(b3.plugin.Plugin):
             client.message('^7Use ^2!ab ^7to add them')
         
     def cmd_addbots(self, data, client, cmd=None):
+        input = self._adminPlugin.parseUserCmd(data)
         self._botstart = True
-        self.addBots()
-        client.message('^7Bots ^2added^7.')
+        if not input:
+            self.addBots()
+            client.message('^7Bots ^2added^7.')
+        elif input:
+            regex = re.compile(r"""^(?P<number>\d+)$""");
+            match = regex.match(data)
+            self._more = int(match.group('number'))
+            self.moreBots()
+            
