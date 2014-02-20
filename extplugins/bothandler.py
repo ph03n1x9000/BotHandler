@@ -34,7 +34,8 @@ class BothandlerPlugin(b3.plugin.Plugin):
     _adding = False
     _first = True
     _more = 0
-    _more_bots []
+    _mb = 0 # used to help forcing of extra bots
+    _more_bots = []
     
     def onStartup(self):
         self.registerEvent(b3.events.EVT_GAME_ROUND_START)
@@ -128,7 +129,8 @@ class BothandlerPlugin(b3.plugin.Plugin):
             
             clients = self._clients
             bots = self._bots
-            bclients = self._botminplayers - clients - bots
+            extrabots = self._botminplayers - self._mb
+            bclients = extrabots - clients - bots
             if bclients == 0 or ((self._clients - self._bots) > self._botminplayers):
                 self.debug('bclients = %s, stopping check' % bclients)
             
@@ -178,6 +180,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
         if self._more > 2:
             self._more = 2
             client.message('Warning: Extra bots limit is 2...auto-changed to 2')
+            self._mb += 1
             
         more = self._more
         while more > 0:
