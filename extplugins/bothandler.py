@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __author__  = 'ph03n1x'
 
 import b3, time, threading, re
@@ -202,8 +202,8 @@ class BothandlerPlugin(b3.plugin.Plugin):
         
     def cmd_addbots(self, data, client, cmd=None):
         input = self._adminPlugin.parseUserCmd(data)
-        self._botstart = True
         if not input:
+            self._botstart = True
             self.addBots()
             client.message('^7Bots ^2added^7.')
         elif input:
