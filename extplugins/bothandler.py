@@ -179,9 +179,9 @@ class BothandlerPlugin(b3.plugin.Plugin):
     def moreBots(self):
         if self._more > 2:
             self._more = 2
-            client.message('Warning: Extra bots limit is 2...auto-changed to 2')
             self._mb += 1
-            
+            client.message('Warning: Extra bots limit is 2...auto-changed to 2')
+        
         more = self._more
         while more > 0:
             more -= 1
@@ -213,6 +213,6 @@ class BothandlerPlugin(b3.plugin.Plugin):
             match = regex.match(data)
             self._more = int(match.group('number'))
             self.moreBots()
-            client.message('^2Extra bots added. They will be kicked on next map start')
+            client.message('^2Extra bots added')
 
             
