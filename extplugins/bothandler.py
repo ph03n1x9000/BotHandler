@@ -129,7 +129,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
             
             clients = self._clients
             bots = self._bots
-            extrabots = self._botminplayers - self._mb
+            extrabots = self._botminplayers + self._mb
             bclients = extrabots - clients - bots
             if bclients == 0 or ((self._clients - self._bots) > self._botminplayers):
                 self.debug('bclients = %s, stopping check' % bclients)
