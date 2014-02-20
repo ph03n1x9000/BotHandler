@@ -6,13 +6,13 @@
    <settings name="settings">
         <set name="bot_minplayers">4</set>
     </settings>
-    <setting name="more_bots">
+    <settings name="more_bots">
         <!-- Define the bots you will use while disregarding the plugin's regulation
         Use: <name> <level> <team> <ping> <alias>  (examples already given, just edit)
         See readme for more information -->
         <set name="bot1">python 5 blue 110 DimpleMaker</set>
         <set name="bot2">boa 5 red 110 PimplePopper</set>
-    </setting>
+    </settings>
     <bots>
         <bot>
             <name>Superdupont</name>
