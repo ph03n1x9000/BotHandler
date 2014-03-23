@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-__version__ = '1.0.1'
-__author__  = 'ph03n1x'
+__version__ = '3.1.0'
+__author__  = 'LouK, ph03n1x'
 
 import b3, time, threading, re
 import b3.events
