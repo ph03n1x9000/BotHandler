@@ -1,43 +1,46 @@
 <configuration plugin="bothandler">
    <settings name="commands">
+        <!-- Specify what admin level can use the commands here -->       
         <set name="kickbots-kb">20</set>
         <set name="addbots-ab">20</set>
    </settings>
    <settings name="settings">
+        <!-- How many bots to add? (default: 4)-->
         <set name="bot_minplayers">4</set>
     </settings>
     <settings name="more_bots">
-        <!-- Define the bots you will use while disregarding the plugin's regulation
+        <!-- Define the extra bots.
         Use: <name> <level> <team> <ping> <alias>  (examples already given, just edit)
         See readme for more information -->
         <set name="bot1">python 5 blue 110 DimpleMaker</set>
         <set name="bot2">boa 5 red 110 PimplePopper</set>
     </settings>
+    <!-- Configure the bots below. Simply add more entries following the layout if needed -->
     <bots>
         <bot>
             <name>Superdupont</name>
-            <character>klown</character>
+            <character>python</character>
             <skill>5</skill>
             <team>red</team>
             <ping>40</ping>
         </bot>
         <bot>
             <name>Golem</name>
-            <character>jenny</character>
+            <character>boa</character>
             <skill>5</skill>
             <team>blue</team>
             <ping>0</ping>
         </bot>
         <bot>
             <name>Devilman</name>
-            <character>ohplease</character>
+            <character>puma</character>
             <skill>5</skill>
             <team>red</team>
             <ping>0</ping>
         </bot>
         <bot>
             <name>ElMatador</name>
-            <character>Pearl</character>
+            <character>python</character>
             <skill>5</skill>
             <team>blue</team>
             <ping>50</ping>
