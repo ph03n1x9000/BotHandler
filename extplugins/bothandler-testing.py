@@ -80,7 +80,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
                     if self._clients - 1 == 0:
                         self.debug('Server is empty. Adding bots')
                         self.enableBots()
-        elif event.type == be.events.EVT_GAME_EXIT:
+        elif event.type == b3.events.EVT_GAME_EXIT:
             self.console.write("kick allbots")
             self._bots = 0
             self._clients = 0
