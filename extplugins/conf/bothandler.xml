@@ -17,7 +17,7 @@
     </settings>
     <!-- Follow the example an list all the bots you would like to add.
     Simply add more entries following the layout if needed.
-	 TIP: Leave the team set to "free" to have B3 send the bot to the team with less players -->
+    TIP: Leave the team set to "free" to have B3 send the bot to the team with less players -->
     <bots>
         <bot>
             <name>Superdupont</name>
