@@ -17,8 +17,8 @@ B3 plugin that handles game bots for Urban Terror server.
 ========== USAGE ==========
 
 !kickbots or !kb - Kick all bots from the server permanently and disable regulating.
-!kickbots <number> or !kb <number> - Kill all bots from server for <number> minutes.
-!addbots or !ab - Add bots to the server and enable regulating (kick bots as player enters server)
+!kickbots <number> or !kb <number> - Kick all bots from server for <number> minutes.
+!addbots or !ab - Add bots to the server and enable regulating (kicks bots as player enters server)
 
 
 ========== Notes ==========
