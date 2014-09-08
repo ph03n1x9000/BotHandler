@@ -124,6 +124,8 @@ class BothandlerPlugin(b3.plugin.Plugin):
 
     def kickBots(self, amount):
         self.verbose('about to kick %s bots' % amount)
+        if self._i >= len(self._allBots):
+            self._i = len(self._allBots) - 1
         while amount > 0:
             try:
                 amount -= 1
