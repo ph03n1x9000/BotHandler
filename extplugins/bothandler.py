@@ -15,8 +15,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-__version__ = '3.1.0'
-__author__  = 'LouK, ph03n1x'
+# version 1.0.1:
+#  - complete recode for faster functioning
+#  - players that are in spec will no longer be counted as active players
+
+
+__version__ = '1.0.1'
+__author__  = 'ph03n1x'
 
 import b3, time, threading, re
 import b3.events
@@ -28,21 +33,12 @@ class BothandlerPlugin(b3.plugin.Plugin):
     _allBots = []
     _botstart = True # Is adding bots enabled at startup?
     _botminplayers = 4 # Amount of bots
-    _clients = 0 # Clients number
-    _bots = 0 # bots number
-    _i = 0 # Used in secondary functions
-    _adding = False
-    _first = True
-    _more = 0
-    _mb = 0 # used to help forcing of extra bots
-    _more_bots = []
+    _i = 0 # Used in index counting
+
     
     def onStartup(self):
-        self.registerEvent(b3.events.EVT_GAME_ROUND_START)
-        self.registerEvent(b3.events.EVT_GAME_EXIT)
-        self.registerEvent(b3.events.EVT_CLIENT_AUTH)
         self.registerEvent(b3.events.EVT_CLIENT_DISCONNECT)
-        self.registerEvent(b3.events.EVT_STOP)
+        self.registerEvent(b3.events.EVT_CLIENT_JOIN )
         self._adminPlugin = self.console.getPlugin('admin')
      
         if not self._adminPlugin:
@@ -63,31 +59,16 @@ class BothandlerPlugin(b3.plugin.Plugin):
                     self._adminPlugin.registerCommand(self, cmd, level, func, alias)
     
     def onEvent(self, event):
-        if event.type == b3.events.EVT_CLIENT_AUTH:
-            sclient = event.client
-            if self._botstart:
-                self.addBots()
-            elif self._clients == 0:
-                for c in self.console.clients.getClientsByLevel(): # Get players
-                    self._clients += 1                    
-            elif 'BOT' not in sclient.guid:
+        if event.type == b3.events.EVT_CLIENT_JOIN:
+            sclient = event.client     
+            if not sclient.bot:
                 if self._botstart:
-                    self.addBots()
-            else:
-                    self._clients = 0
-                    for c in self.console.clients.getClientsByLevel(): # Get players
-                        self._clients += 1                    
+                    self.countPlayers()             
         elif event.type == b3.events.EVT_CLIENT_DISCONNECT:
             sclient = event.client
-            if 'BOT' not in sclient.guid:
+            if not sclient.bot:
                 if self._botstart:
-                    self.addBots() 
-                else:
-                    self._clients = 0
-                    for c in self.console.clients.getClientsByLevel(): # Get players
-                        self._clients += 1
-        elif event.type == b3.events.EVT_STOP:
-            self.console.write("kick allbots")
+                    self.countPlayers()
             
     def onLoadConfig(self):
         self.loadBotstuff() # Get settings from config
@@ -101,93 +82,76 @@ class BothandlerPlugin(b3.plugin.Plugin):
         return None
         
     def loadBotstuff(self):
+        self._botminplayers = self.config.getint('settings', 'bot_minplayers')
         for bot in self.config.get('bots/bot'):
             nameBot = bot.find('name').text
-            charBot = bot.find('character').text
-            lvlBot = bot.find('skill').text
-            teamBot = bot.find('team').text
-            pingBot = bot.find('ping').text
-            self._allBots.insert(1, [charBot, lvlBot, teamBot, pingBot, nameBot])
-            self.debug('Bot added: %s %s %s %s %s' % (nameBot, charBot, lvlBot, teamBot, pingBot))
-            self._botminplayers = self.config.getint('settings', 'bot_minplayers')
-            moreBot1 = self.config.get('more_bots', 'bot1')
-            moreBot2 = self.config.get('more_bots', 'bot2')
-            self._more_bots.insert(1, [moreBot2, moreBot1])
+            confBot = bot.find('config').text
+            self._allBots.insert(1, [confBot, nameBot])
+            self.debug('Bot added: %s %s' % (confBot, nameBot))
+         
                     
-                    
-    def addBots(self):
-        self._bots = 0
-        self._clients = 0
-        if self._botstart: 
-            self.console.write("bot_enable 1")
-            for c in self.console.clients.getClientsByLevel(): # Get players
-                self._clients += 1
-                
-                if 'BOT' in c.guid:
-                    self._clients -= 1
-                    self._bots += 1
+    def countPlayers(self):
+        humans = 0
+        bots = 0
+        for c in self.console.clients.getClientsByLevel(): # Get players
+            if 'BOT' in c.guid:
+                bots += 1
+            else:
+                if c.team != b3.TEAM_SPEC:
+                    humans += 1
+        if humans >= self._botminplayers and bots == 0:
+            self.debug('No need to act. Minimum human player limit reached')
+            return
+        elif ((humans + bots) >= self._botminplayers):
+            if bots > 0:
+                self.debug('We need to kick bots...')
+                amount = humans + bots - self._botminplayers 
+                self.kickBots(amount)
+        elif ((humans + bots) < self._botminplayers):
+            self.debug('We need to add bots...')
+            amount = self._botminplayers - humans - bots
+            self.addBots(amount)
             
-            clients = self._clients
-            bots = self._bots
-            extrabots = self._botminplayers + self._mb
-            bclients = extrabots - clients - bots
-            if bclients == 0 or ((self._clients - self._bots) > self._botminplayers):
-                self.debug('bclients = %s, stopping check' % bclients)
-            
-            if bclients > 0: # Check if we need to add bots
-                self.debug('adding bots')
-                if self._adding:
-                    self._i += 1
+    def addBots(self, amount):
+        self.verbose('about to add %s bots' % amount)
+        while amount > 0:
+            if self._i == len(self._allBots):
+                self.debug('self._i is at max: %s. Breaking' % self._i)
+                break
+            amount -= 1
+            self.console.write('addbot %s %s' % (self._allBots[self._i][0], self._allBots[self._i][1]))
+            self._i += 1
 
-                while bclients > 0: # Add all the necessary bots
-                    bclients -= 1
-                    if self._i == len(self._allBots):
-                        break
-                    self.console.write('addbot %s %s %s %s %s' % (self._allBots[self._i][0], self._allBots[self._i][1], self._allBots[self._i][2], self._allBots[self._i][3], self._allBots[self._i][4]))
-                    self._bots += 1
-                    if self._i < (len(self._allBots)):
-                        self._i += 1
-
-                self._adding = True
-                if self._i > 0:
-                    self._i -= 1
-                    
-            elif bclients < 0: # Check if we need to kick bots
-                self.debug('kicking bots')
-                while bclients < 0:
+    def kickBots(self, amount):
+        self.verbose('about to kick %s bots' % amount)
+        while amount > 0:
+            try:
+                amount -= 1
+                self.console.write('kick %s' % self._allBots[self._i][1])
+                self._i -= 1
+            except IndexError, e:
+                ni = self._i - 1
+                self.warning('Encountered IndexError: %s. Reducing index for self._allBots by 1' % e)
+                amount -= 1
+                self.console.write('kick %s' % self._allBots[ni][1])
+                self._i -= 1
                 
-                    self._bots -= 1
-                    bclients += 1
-                    self.console.write('kick %s' % self._allBots[self._i][4])
-                    self._i -= 1
-
-                self._adding = True
             
     def enableBots(self):
         self.console.say('Bots on the way, brace yourself...')
         self._botstart = True
-        self.addBots()
+        self.countPlayers()
 
     def disableBots(self):
         self._botstart = False
-        self._bots = 0
-        self._clients = 0
         self._i = 0
-        self._adding = False
         self.console.write("kick allbots")
         
-    def moreBots(self):
-        if self._more > 2:
-            self._more = 2
-            self._mb += 1
-            client.message('Warning: Extra bots limit is 2...auto-changed to 2')
-        
-        more = self._more
-        while more > 0:
-            more -= 1
-            self.console.write('addbot %s' % (self._more_bots[0][more]))
-
+# ---------------------------------------------------- COMMANDS ------------------------------------------------------------
     def cmd_kickbots(self, data, client, cmd=None):
+        """\
+        Kick all bots on server and turn off regulation.
+        """
         input = self._adminPlugin.parseUserCmd(data)
         self.disableBots()
         if not input:
@@ -203,16 +167,27 @@ class BothandlerPlugin(b3.plugin.Plugin):
             client.message('^7Use ^2!ab ^7to add them')
         
     def cmd_addbots(self, data, client, cmd=None):
+        """\
+        Add bots to server and turn on regulation.
+        """
         input = self._adminPlugin.parseUserCmd(data)
         if not input:
             self._botstart = True
-            self.addBots()
+            self.countPlayers()
             client.message('^7Bots ^2added^7.')
         elif input:
             regex = re.compile(r"""^(?P<number>\d+)$""");
             match = regex.match(data)
-            self._more = int(match.group('number'))
-            self.moreBots()
-            client.message('^2Extra bots added')
+            amount = int(match.group('number'))
+            if self._botstart:
+                client.message('^1Bot regulation is enabled...')
+                client.message('^7Use ^2!kickbots ^7and try again')
+                return
+            elif not self._botstart:
+                if amount > len(self._allBots):
+                    client.message('^1Cannot send that many bots. ^7Sending ^2%s ^7bots' % (len(self._allBots)))
+                    amount = len(self._allBots)
+                client.message('^2Adding requested bots')
+                self.addBots(amount)
 
             

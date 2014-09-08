@@ -8,44 +8,25 @@
         <!-- How many bots to add? (default: 4)-->
         <set name="bot_minplayers">4</set>
     </settings>
-    <settings name="more_bots">
-        <!-- Define the extra bots.
-        Use: <name> <level> <team> <ping> <alias>  (examples already given, just edit)
-        See readme for more information -->
-        <set name="bot1">python 5 blue 110 DimpleMaker</set>
-        <set name="bot2">boa 5 red 110 PimplePopper</set>
-    </settings>
     <!-- Follow the example an list all the bots you would like to add.
     Simply add more entries following the layout if needed.
     TIP: Leave the team set to "free" to have B3 send the bot to the team with less players -->
     <bots>
         <bot>
             <name>Superdupont</name>
-            <character>python</character>
-            <skill>5</skill>
-            <team>free</team>
-            <ping>40</ping>
+            <config>python 5 free 40</config>
         </bot>
         <bot>
             <name>Golem</name>
-            <character>boa</character>
-            <skill>5</skill>
-            <team>free</team>
-            <ping>0</ping>
+            <config>boa 5 free 0</config>
         </bot>
         <bot>
             <name>Devilman</name>
-            <character>puma</character>
-            <skill>5</skill>
-            <team>free</team>
-            <ping>0</ping>
+            <config>puma 5 free 0</config>
         </bot>
         <bot>
             <name>ElMatador</name>
-            <character>python</character>
-            <skill>5</skill>
-            <team>free</team>
-            <ping>50</ping>
+            <config>python 5 free 50</config>
         </bot>
     </bots>
 </configuration>
