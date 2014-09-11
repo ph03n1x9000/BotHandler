@@ -31,6 +31,7 @@ import os
     
 class BothandlerPlugin(b3.plugin.Plugin):
     _allBots = []
+    _botsAdded = False
     _botstart = True # Is adding bots enabled at startup?
     _botminplayers = 4 # Amount of bots
     _i = 0 # Used in index counting
@@ -114,29 +115,31 @@ class BothandlerPlugin(b3.plugin.Plugin):
             
     def addBots(self, amount):
         self.verbose('about to add %s bots' % amount)
+        if self._botsAdded:
+            self._i += 1
         while amount > 0:
             if self._i == len(self._allBots):
-                self.debug('self._i is at max: %s. Breaking' % self._i)
+                self.debug('self._i is at past limit: %s. Breaking...' % self._i)
                 break
             amount -= 1
             self.console.write('addbot %s %s' % (self._allBots[self._i][0], self._allBots[self._i][1]))
-            self._i += 1
+            if self._i < len(self._allBots):
+                self._i += 1
+
+        self._botsAdded = True
+        self._i -= 1
+        self.debug('self._i: %s after adding bots' % self._i)
 
     def kickBots(self, amount):
         self.verbose('about to kick %s bots' % amount)
         if self._i >= len(self._allBots):
             self._i = len(self._allBots) - 1
         while amount > 0:
-            try:
-                amount -= 1
-                self.console.write('kick %s' % self._allBots[self._i][1])
-                self._i -= 1
-            except IndexError, e:
-                ni = self._i - 1
-                self.warning('Encountered IndexError: %s. Reducing index for self._allBots by 1' % e)
-                amount -= 1
-                self.console.write('kick %s' % self._allBots[ni][1])
-                self._i -= 1
+            amount -= 1
+            self.console.write('kick %s' % self._allBots[self._i][1])
+            self._i -= 1
+
+        self.debug('self._i: %s after kicking bots' % self._i)
                 
             
     def enableBots(self):
@@ -147,6 +150,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
     def disableBots(self):
         self._botstart = False
         self._i = 0
+        self._botsAdded = False
         self.console.write("kick allbots")
         
 # ---------------------------------------------------- COMMANDS ------------------------------------------------------------
