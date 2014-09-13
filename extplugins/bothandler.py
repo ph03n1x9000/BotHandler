@@ -42,8 +42,6 @@ class BothandlerPlugin(b3.plugin.Plugin):
         self.registerEvent(b3.events.EVT_CLIENT_DISCONNECT)
         self.registerEvent(b3.events.EVT_CLIENT_JOIN)
         self.registerEvent(b3.events.EVT_GAME_MAP_CHANGE)
-        #create new event to handle reconnects on map change
-        self.console.Events.createEvent('EVT_GAME_MAP_CHANGE', 'Event Game Mapchange')
         self._adminPlugin = self.console.getPlugin('admin')
      
         if not self._adminPlugin:
