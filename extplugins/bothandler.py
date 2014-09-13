@@ -33,13 +33,17 @@ class BothandlerPlugin(b3.plugin.Plugin):
     _allBots = []
     _botsAdded = False
     _botstart = True # Is adding bots enabled at startup?
-    _botminplayers = 4 # Amount of bots
+    _botminplayers = 4 # Default amount of bots
     _i = 0 # Used in index counting
+    _ignoring = 0 #Used to delay bot counting after map change
 
     
     def onStartup(self):
         self.registerEvent(b3.events.EVT_CLIENT_DISCONNECT)
-        self.registerEvent(b3.events.EVT_CLIENT_JOIN )
+        self.registerEvent(b3.events.EVT_CLIENT_JOIN)
+        self.registerEvent(b3.events.EVT_GAME_MAP_CHANGE)
+        #create new event to handle reconnects on map change
+        self.console.Events.createEvent('EVT_GAME_MAP_CHANGE', 'Event Game Mapchange')
         self._adminPlugin = self.console.getPlugin('admin')
      
         if not self._adminPlugin:
@@ -70,6 +74,8 @@ class BothandlerPlugin(b3.plugin.Plugin):
             if not sclient.bot:
                 if self._botstart:
                     self.countPlayers()
+        elif event.type == b3.events.EVT_GAME_MAP_CHANGE:
+            self._ignoring = self.console.time() + 30
             
     def onLoadConfig(self):
         self.loadBotstuff() # Get settings from config
@@ -89,9 +95,11 @@ class BothandlerPlugin(b3.plugin.Plugin):
             confBot = bot.find('config').text
             self._allBots.insert(1, [confBot, nameBot])
             self.debug('Bot added: %s %s' % (confBot, nameBot))
-         
                     
     def countPlayers(self):
+        if self.console.time() < self._ignoring:
+            self.debug('Map just changed, too early to count players')
+            return
         humans = 0
         bots = 0
         for c in self.console.clients.getClientsByLevel(): # Get players
@@ -132,8 +140,6 @@ class BothandlerPlugin(b3.plugin.Plugin):
 
     def kickBots(self, amount):
         self.verbose('about to kick %s bots' % amount)
-        if self._i >= len(self._allBots):
-            self._i = len(self._allBots) - 1
         while amount > 0:
             amount -= 1
             self.console.write('kick %s' % self._allBots[self._i][1])
