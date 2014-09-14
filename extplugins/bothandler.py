@@ -27,7 +27,6 @@ import b3, time, threading, re
 import b3.events
 import b3.plugin
 import shutil
-import os
     
 class BothandlerPlugin(b3.plugin.Plugin):
     _allBots = []
@@ -73,7 +72,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
                 if self._botstart:
                     self.countPlayers()
         elif event.type == b3.events.EVT_GAME_MAP_CHANGE:
-            self._ignoring = self.console.time() + 30
+            self._ignoring = self.console.time() + 20
             
     def onLoadConfig(self):
         self.loadBotstuff() # Get settings from config
@@ -133,18 +132,15 @@ class BothandlerPlugin(b3.plugin.Plugin):
                 self._i += 1
 
         self._botsAdded = True
-        self._i -= 1
-        self.debug('self._i: %s after adding bots' % self._i)
+        if self._i > 0:
+            self._i -= 1
 
     def kickBots(self, amount):
         self.verbose('about to kick %s bots' % amount)
         while amount > 0:
             amount -= 1
             self.console.write('kick %s' % self._allBots[self._i][1])
-            self._i -= 1
-
-        self.debug('self._i: %s after kicking bots' % self._i)
-                
+            self._i -= 1                
             
     def enableBots(self):
         self.console.say('Bots on the way, brace yourself...')
@@ -190,7 +186,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
             match = regex.match(data)
             amount = int(match.group('number'))
             if self._botstart:
-                client.message('^1Bot regulation is enabled...')
+                client.message('^1Error: Bot regulation is enabled.')
                 client.message('^7Use ^2!kickbots ^7and try again')
                 return
             elif not self._botstart:
