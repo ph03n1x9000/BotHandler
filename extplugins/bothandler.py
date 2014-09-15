@@ -19,28 +19,30 @@
 #  - complete recode for faster functioning
 #  - players that are in spec will no longer be counted as active players
 
+# version 1.0.2:
+#   - Changed the counting function. Will now query the players directly from server
+#   - Removed all instances of EVT_GAME_MAP_CHANGE. It is not needed with new counting functioning.
+#   - SPECIAL THANKS TO COURGETTE FOR THIS UPDATE!
 
-__version__ = '1.0.1'
+
+__version__ = '1.0.2'
 __author__  = 'ph03n1x'
 
 import b3, time, threading, re
 import b3.events
 import b3.plugin
-import shutil
     
 class BothandlerPlugin(b3.plugin.Plugin):
     _allBots = []
-    _botsAdded = False
+    _botsAdded = False # Used withing addBots function to see if we added bots before; to fix indexing.
     _botstart = True # Is adding bots enabled at startup?
     _botminplayers = 4 # Default amount of bots
     _i = 0 # Used in index counting
-    _ignoring = 0 #Used to delay bot counting after map change
 
     
     def onStartup(self):
         self.registerEvent(b3.events.EVT_CLIENT_DISCONNECT)
         self.registerEvent(b3.events.EVT_CLIENT_JOIN)
-        self.registerEvent(b3.events.EVT_GAME_MAP_CHANGE)
         self._adminPlugin = self.console.getPlugin('admin')
      
         if not self._adminPlugin:
@@ -71,8 +73,6 @@ class BothandlerPlugin(b3.plugin.Plugin):
             if not sclient.bot:
                 if self._botstart:
                     self.countPlayers()
-        elif event.type == b3.events.EVT_GAME_MAP_CHANGE:
-            self._ignoring = self.console.time() + 20
             
     def onLoadConfig(self):
         self.loadBotstuff() # Get settings from config
@@ -92,19 +92,23 @@ class BothandlerPlugin(b3.plugin.Plugin):
             confBot = bot.find('config').text
             self._allBots.insert(1, [confBot, nameBot])
             self.debug('Bot added: %s %s' % (confBot, nameBot))
-                    
-    def countPlayers(self):
-        if self.console.time() < self._ignoring:
-            self.debug('Map just changed, too early to count players')
-            return
-        humans = 0
-        bots = 0
-        for c in self.console.clients.getClientsByLevel(): # Get players
-            if 'BOT' in c.guid:
-                bots += 1
+            
+    def countPlayersBotsAndSpectators(self):
+        data = self.console.write('players')
+        total = int(data.split('\n')[1][9:])
+        players = 0
+        spectators = 0
+        for m in re.finditer('(?m)' + self.console._rePlayerScore.pattern, data):
+            if m.group('team') == 'SPECTATOR':
+                spectators += 1
             else:
-                if c.team != b3.TEAM_SPEC:
-                    humans += 1
+                players += 1
+        bots = total - players - spectators
+        return players, bots, spectators
+
+            
+    def countPlayers(self):
+        humans, bots, _ = self.countPlayersBotsAndSpectators()
         if humans >= self._botminplayers and bots == 0:
             self.debug('No need to act. Minimum human player limit reached')
             return
@@ -124,7 +128,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
             self._i += 1
         while amount > 0:
             if self._i == len(self._allBots):
-                self.debug('self._i is at past limit: %s. Breaking...' % self._i)
+                self.debug('self._i is past limit: %s. Breaking...' % self._i)
                 break
             amount -= 1
             self.console.write('addbot %s %s' % (self._allBots[self._i][0], self._allBots[self._i][1]))
@@ -195,5 +199,3 @@ class BothandlerPlugin(b3.plugin.Plugin):
                     amount = len(self._allBots)
                 client.message('^2Adding requested bots')
                 self.addBots(amount)
-
-            

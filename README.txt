@@ -33,3 +33,4 @@ When this is used, the specified bots will not be regulated, thus will not be ki
 
 v1 - Initial release
 v1.0.1 - Changed functioning and excluded spectators from regulation.
+v1.0.2 - Changed player counting function to query server directly instead of B3. Removed map change params.
