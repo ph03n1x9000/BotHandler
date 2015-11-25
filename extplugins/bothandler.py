@@ -27,8 +27,10 @@
 #   - Recoded addbots and kickbots function to fix bots having duplicate names
 #   - Changed event handling to work better with B3 v1.10
 #   - Added ability to individually kick a single bot using !kick without breaking plugin functions.
+# version 1.0.6
+#   - Converted .xml config to .ini
 
-__version__ = '1.0.5'
+__version__ = '1.0.6'
 __author__  = 'ph03n1x'
 
 import b3, threading, re
