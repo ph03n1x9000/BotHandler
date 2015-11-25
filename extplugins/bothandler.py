@@ -37,7 +37,6 @@ import threading
 import re
 import b3.events
 import b3.plugin
-from ConfigParser import ConfigParser
 
 
 class BothandlerPlugin(b3.plugin.Plugin):
@@ -73,9 +72,6 @@ class BothandlerPlugin(b3.plugin.Plugin):
                     self._adminPlugin.registerCommand(self, cmd, level, func, alias)
             
     def onLoadConfig(self):
-        config = ConfigParser()
-        config.optionxform = str
-        config.read(self.config.fileName)
         self.loadBotstuff()  # Get settings from config
         
     def getCmd(self, cmd):
@@ -97,7 +93,9 @@ class BothandlerPlugin(b3.plugin.Plugin):
         #     self._allBots[nameBot]['active'] = False
         #     self.debug('Bot added: %s %s' % (confBot, nameBot))
         if self.config.has_section('bots'):
-            for (botname, botconfig) in self.config.items('bots'):
+            for (name, conf) in self.config.items('bots'):
+                botname = conf.rsplit(' ', 1)[1]
+                botconfig = conf.rsplit(' ', 1)[0]
                 self._allBots[botname] = {}
                 self._allBots[botname]['config'] = botconfig
                 self._allBots[botname]['active'] = False
@@ -231,7 +229,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
         self.debug('Sent [bot_enable 1] to server')
 
     def checkBotCount(self):
-        self.verbose('Checking which bots are incorrectly tagged as active/inactive')
+        self.debug('Checking which bots are incorrectly tagged as active/inactive')
         for a in self._allBots:
             self._allBots[a]['active'] = False
         # Get a list of clients from server and check against our bots
