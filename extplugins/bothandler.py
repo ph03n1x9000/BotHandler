@@ -1,6 +1,6 @@
 # BotHandler Plugin for BigBrotherBot(B3) (www.bigbrotherbot.net)
 # Copyright (C) 2014 ph03n1x
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -29,11 +29,12 @@
 #   - Added ability to individually kick a single bot using !kick without breaking plugin functions.
 # version 1.0.6
 #   - Converted .xml config to .ini
-
 __version__ = '1.0.6'
-__author__  = 'ph03n1x'
+__author__ = 'ph03n1x'
 
-import b3, threading, re
+import b3
+import threading
+import re
 import b3.events
 import b3.plugin
 from ConfigParser import ConfigParser
@@ -72,10 +73,10 @@ class BothandlerPlugin(b3.plugin.Plugin):
                     self._adminPlugin.registerCommand(self, cmd, level, func, alias)
             
     def onLoadConfig(self):
-        config = ConfigParser
+        config = ConfigParser()
         config.optionxform = str
         config.read(self.config.fileName)
-        self.loadBotstuff() # Get settings from config
+        self.loadBotstuff()  # Get settings from config
         
     def getCmd(self, cmd):
         cmd = 'cmd_%s' % cmd
@@ -171,12 +172,12 @@ class BothandlerPlugin(b3.plugin.Plugin):
         if humans >= self._botminplayers and bots == 0:
             self.debug('No need to act. Minimum human player limit reached')
             return
-        elif ((humans + bots) >= self._botminplayers):
+        elif (humans + bots >= self._botminplayers):
             if bots > 0:
                 self.debug('We need to kick bots...')
                 amount = humans + bots - self._botminplayers 
                 self.kickBots(amount)
-        elif ((humans + bots) < self._botminplayers):
+        elif (humans + bots < self._botminplayers):
             self.debug('We need to add bots...')
             amount = self._botminplayers - humans - bots
             self.addBots(amount)
@@ -256,7 +257,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
             client.message('^7You ^1kicked ^7all bots in the server')
             client.message('^7Use ^2!ab ^7to add them')
         elif input:
-            regex = re.compile(r"""^(?P<number>\d+)$""");
+            regex = re.compile(r"""^(?P<number>\d+)$""")
             match = regex.match(data)
             time = int(match.group('number'))
             t = threading.Timer((time * 60), self.enableBots)
@@ -274,7 +275,7 @@ class BothandlerPlugin(b3.plugin.Plugin):
             self.countPlayers()
             client.message('^7Bots ^2added^7.')
         elif input:
-            regex = re.compile(r"""^(?P<number>\d+)$""");
+            regex = re.compile(r"""^(?P<number>\d+)$""")
             match = regex.match(data)
             amount = int(match.group('number'))
             if self._botStart:
