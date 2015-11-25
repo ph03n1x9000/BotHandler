@@ -37,13 +37,14 @@ import threading
 import re
 import b3.events
 import b3.plugin
+from ConfigParser import ConfigParser
 
 
 class BothandlerPlugin(b3.plugin.Plugin):
     _adminPlugin = None
     _allBots = {}
-    _botStart = True # Is adding bots enabled
-    _botminplayers = 4 # Default amount of bots
+    _botStart = True  # Is adding bots enabled
+    _botminplayers = 4  # Default amount of bots
     _humans = 0  # Used to count humans.
     _empty = False
     botsEnabled = False  # Used to determine whether we already set bot_enable cvar to 1
@@ -72,34 +73,15 @@ class BothandlerPlugin(b3.plugin.Plugin):
                     self._adminPlugin.registerCommand(self, cmd, level, func, alias)
             
     def onLoadConfig(self):
-        self.loadBotstuff()  # Get settings from config
-        
-    def getCmd(self, cmd):
-        cmd = 'cmd_%s' % cmd
-        if hasattr(self, cmd):
-            func = getattr(self, cmd)
-            return func
-
-        return None
-        
-    def loadBotstuff(self):
-        self._botminplayers = self.config.getint('settings', 'bot_minplayers')
-        # Load bot config. Used for xml config
-        # for bot in self.config.get('bots/bot'):
-        #     nameBot = bot.find('name').text
-        #     confBot = bot.find('config').text
-        #     self._allBots[nameBot] = {}
-        #     self._allBots[nameBot]['config'] = confBot
-        #     self._allBots[nameBot]['active'] = False
-        #     self.debug('Bot added: %s %s' % (confBot, nameBot))
-        if self.config.has_section('bots'):
-            for (name, conf) in self.config.items('bots'):
-                botname = conf.rsplit(' ', 1)[1]
-                botconfig = conf.rsplit(' ', 1)[0]
-                self._allBots[botname] = {}
-                self._allBots[botname]['config'] = botconfig
-                self._allBots[botname]['active'] = False
-                self.debug('Bot loaded: %s %s' % (botconfig, botname))
+        config = ConfigParser()
+        config.optionxform = str
+        config.read(self.config.fileName)
+        self._botminplayers = config.getint('settings', 'bot_minplayers')
+        if config.has_section('bots'):
+            for (name, conf) in config.items('bots'):
+                a = {name: {'config': conf, 'active': False}}
+                self._allBots.update(a)
+                self.debug('Bot loaded: %s %s' % (conf, name))
         if len(self._allBots.keys()) < self._botminplayers:
             self.debug('bot_minplayers set to %s but %s bots defined in config. bot_minplayers set to %s' % (self._botminplayers, len(self._allBots.keys()), len(self._allBots.keys())))
             self._botminplayers = len(self._allBots.keys())
@@ -111,6 +93,14 @@ class BothandlerPlugin(b3.plugin.Plugin):
                     break
                 self._allBots.pop(bot, None)
                 amountToRemove -= 1
+
+    def getCmd(self, cmd):
+        cmd = 'cmd_%s' % cmd
+        if hasattr(self, cmd):
+            func = getattr(self, cmd)
+            return func
+
+        return None
 
 # ---------------------------------- EVENT HANDLING ----------------------------------
     def playerJoinGame(self, event):
